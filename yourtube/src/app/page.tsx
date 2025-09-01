@@ -8,7 +8,7 @@ type Video = {
   youtubeId: string;
   title: string;
   channel: string;
-  views: string;
+  views: number;
 };
 
 const sampleVideos: Video[] = [
@@ -16,37 +16,37 @@ const sampleVideos: Video[] = [
     youtubeId: 'dFgzHOX84xQ',
     title: 'Mastering Tailwind CSS in 10 Minutes!',
     channel: 'CodeWithDeeksha',
-    views: '1.2M',
+    views: 1200000,
   },
   {
     youtubeId: '2nFg1wSTnSQ',
     title: 'Building a YouTube Clone with Next.js',
     channel: 'NullClass Tutorials',
-    views: '580K',
+    views: 580000,
   },
   {
     youtubeId: '5qap5aO4i9A',
     title: 'Lofi Hip Hop Radio - Beats to Relax/Study to',
     channel: 'Chillhop Music',
-    views: '3.4M',
+    views: 3400000,
   },
   {
     youtubeId: 'LXb3EKWsInQ',
     title: 'The Most Relaxing Drone Video of Norway',
     channel: 'Scenic Relaxation',
-    views: '2.5M',
+    views: 2500000,
   },
   {
     youtubeId: 'tBfcRZj850ZPcSnp',
     title: 'hello, mai hu chatgpt',
     channel: 'Scenic Relaxation',
-    views: '25M',
+    views: 25000000,
   },
   {
     youtubeId: 'IRM-FscOn-a3RNWu',
     title: 'hello uncle!',
     channel: 'yuhuu',
-    views: '12k',
+    views: 12000,
   },
 ];
 
@@ -59,27 +59,27 @@ export default function Home() {
       try {
         const res = await fetch('http://localhost:5000/api/videos');
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
-        // ✅ Check if response is JSON
         const contentType = res.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
           console.warn('⚠️ Expected JSON but got:', contentType);
-          setVideos(sampleVideos); // fallback to sample videos
+          setVideos(sampleVideos);
           return;
         }
 
         const data: Video[] = await res.json();
 
-        // ✅ Merge DB videos + sample videos
-        if (data.length > 0) {
-          setVideos([...data, ...sampleVideos]);
-        }
+        const normalizedData = data.map((video) => ({
+          ...video,
+          views: Number(video.views) || 0,
+        }));
+
+        if (normalizedData.length > 0)
+          setVideos([...normalizedData, ...sampleVideos]);
       } catch (error) {
         console.error('❌ Error fetching videos:', error);
-        setVideos(sampleVideos); // fallback
+        setVideos(sampleVideos);
       } finally {
         setLoading(false);
       }
@@ -89,13 +89,19 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex">
+    <main className="flex flex-col">
       <div className="p-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 flex-1">
         {loading ? (
           <p className="text-gray-500">Loading videos...</p>
         ) : videos.length > 0 ? (
           videos.map((video, index) => (
-            <VideoCard key={video._id || index} {...video} />
+            <VideoCard
+              key={video._id || index} // ✅ only used as React key
+              youtubeId={video.youtubeId}
+              title={video.title}
+              channel={video.channel}
+              views={video.views}
+            />
           ))
         ) : (
           <p className="text-gray-500">No videos available</p>

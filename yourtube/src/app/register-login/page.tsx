@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { registerUser, loginUser, logoutUser } from "../../../utils/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
@@ -9,6 +10,8 @@ export default function RegisterLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  const router = useRouter();
 
   // ✅ Track logged in user
   onAuthStateChanged(auth, (user) => {
@@ -19,6 +22,7 @@ export default function RegisterLoginPage() {
     try {
       await registerUser(email, password);
       alert("✅ Registered successfully!");
+      router.push("/"); // redirect to Home
     } catch (err: any) {
       alert("❌ " + err.message);
     }
@@ -28,6 +32,7 @@ export default function RegisterLoginPage() {
     try {
       await loginUser(email, password);
       alert("✅ Logged in successfully!");
+      router.push("/"); // redirect to Home
     } catch (err: any) {
       alert("❌ " + err.message);
     }
@@ -44,8 +49,13 @@ export default function RegisterLoginPage() {
 
       {userEmail ? (
         <div className="text-center">
-          <p className="mb-2">Logged in as: <b>{userEmail}</b></p>
-          <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">
+          <p className="mb-2">
+            Logged in as: <b>{userEmail}</b>
+          </p>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
             Logout
           </button>
         </div>
@@ -67,10 +77,16 @@ export default function RegisterLoginPage() {
           />
 
           <div className="flex gap-2">
-            <button onClick={handleRegister} className="bg-blue-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={handleRegister}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
               Register
             </button>
-            <button onClick={handleLogin} className="bg-green-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={handleLogin}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
               Login
             </button>
           </div>

@@ -11,11 +11,16 @@ import commentRoutes from "./routes/commentRoutes.js";
 import downloadRoutes from "./routes/downloadRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 
+// server.js (only the new import + use)
+import otpRoutes from "./routes/otpRoutes.js";
+
+
 dotenv.config();
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/otp", otpRoutes);
 
 // (your existing comment sanitiser middleware here if you wish)
 
